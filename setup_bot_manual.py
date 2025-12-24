@@ -182,7 +182,6 @@ if __name__ == "__main__":
         config = load_config()
         setup_telegram(config)
 
-        # If running in CI (GitHub Actions), generate dummy CSV instead of starting the bot
         if os.environ.get("CI") == "true":
             generate_dummy_csv()
         else:
@@ -194,6 +193,7 @@ if __name__ == "__main__":
         print(f"Error: {e}")
         print("Run again or check prerequisites.")
 
+
 # if __name__ == "__main__":
 #     try:
 #         config = load_config()
@@ -204,6 +204,7 @@ if __name__ == "__main__":
 #     except Exception as e:
 #         print(f"Error: {e}")
 #         print("Run again or check prerequisites.")
+
 
 
 
