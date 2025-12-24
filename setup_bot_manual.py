@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import json
 import os
 from typing import Dict, Any
@@ -180,4 +179,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         print("Run again or check prerequisites.")
+
 
