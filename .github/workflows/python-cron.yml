@@ -35,3 +35,8 @@ jobs:
           git add pending_teams.csv || echo "No CSV to add"
           git commit -m "Update pending_teams.csv" || echo "No changes to commit"
           git push origin main
+
+      - name: Generate dummy CSV
+        run: |
+          python -c "from setup_bot_manual import save_to_csv; save_to_csv({'name':'Test','email':'test@example.com','phone':'123'})"
+
