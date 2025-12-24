@@ -26,6 +26,8 @@ jobs:
 
       - name: Run script
         run: python setup_bot_manual.py
+        env: 
+          CI: true
 
       - name: Commit CSV results
         run: |
