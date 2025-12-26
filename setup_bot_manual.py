@@ -10,7 +10,6 @@ import csv
 from datetime import datetime
 import re
 
-
 # Config file
 CONFIG_FILE = 'config.json'
 
@@ -208,6 +207,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         print("Run again or check prerequisites.")
+
 
 
 
