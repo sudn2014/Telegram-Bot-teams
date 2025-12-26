@@ -8,6 +8,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import csv
 from datetime import datetime
+import re
+
+if state == 'email' and not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', message.text):
+    bot.send_message(user_id, "Invalid email. Please try again:")
+    return  # Stay in state
 
 # Config file
 CONFIG_FILE = 'config.json'
@@ -95,6 +100,17 @@ def save_to_csv(user_data: Dict[str, str]):
             'Timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
     print("Saved to pending_teams.csv")
+    # Auto-push to repo (only if GIT_TOKEN set, e.g., in hosting env)
+    if os.environ.get('GIT_TOKEN'):
+        import subprocess
+        repo_url = 'https://x-access-token:' + os.environ['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'] + '@github.com/sudn2014/telegram-bot-teams.git'
+        subprocess.run(['git', 'remote', 'set-url', 'origin', repo_url], check=True)
+        subprocess.run(['git', 'add', 'pending_teams.csv'], check=True)
+        subprocess.run(['git', 'commit', '-m', f'Add user: {user_data["name"]}'], capture_output=True)
+        if subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True).returncode == 0:
+            print("Pushed to repo")
+        else:
+            print("Push failed - check token")
     
 def generate_dummy_csv():
     save_to_csv({
@@ -192,6 +208,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         print("Run again or check prerequisites.")
+
 
 
 
