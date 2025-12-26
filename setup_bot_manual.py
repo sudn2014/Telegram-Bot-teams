@@ -99,7 +99,7 @@ def save_to_csv(user_data: Dict[str, str]):
     # Auto-push to repo (only if GIT_TOKEN set, e.g., in hosting env)
     if os.environ.get('GIT_TOKEN'):
         import subprocess
-        repo_url = 'https://x-access-token:' + os.environ['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'] + '@github.com/sudn2014/telegram-bot-teams.git'
+        repo_url = 'https://x-access-token:' + os.environ.get('GIT_TOKEN') + '@github.com/sudn2014/telegram-bot-teams.git'
         subprocess.run(['git', 'remote', 'set-url', 'origin', repo_url], check=True)
         subprocess.run(['git', 'add', 'pending_teams.csv'], check=True)
         subprocess.run(['git', 'commit', '-m', f'Add user: {user_data["name"]}'], capture_output=True)
@@ -208,6 +208,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         print("Run again or check prerequisites.")
+
 
 
 
