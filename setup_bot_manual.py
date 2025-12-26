@@ -194,17 +194,6 @@ if __name__ == "__main__":
         print("Run again or check prerequisites.")
 
 
-# if __name__ == "__main__":
-#     try:
-#         config = load_config()
-#         setup_telegram(config)
-#         run_bot(config)
-#     except KeyboardInterrupt:
-#         print("\nStopped.")
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         print("Run again or check prerequisites.")
-
 
 
 
