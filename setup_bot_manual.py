@@ -246,9 +246,12 @@ if __name__ == "__main__":
     try:
         config = load_config()
         setup_telegram(config)
-        if os.environ.get("CI") == "true":
+        print(f"RUN_DUMMY env: '{os.environ.get('RUN_DUMMY')}'")  # Debug
+        if os.environ.get("RUN_DUMMY") == "true":
+            print("Dummy mode")
             generate_dummy_csv()
         else:
+            print("Full mode - starting polling")
             run_bot(config)
     except KeyboardInterrupt:
         print("\nStopped.")
