@@ -1,8 +1,8 @@
 name: Run Telegram Bot (Full Mode)
 on:
   schedule:
-    - cron: "*/5 * * * *"  # Every 5 min (free-tier safe; change to */1 if paid & willing to pay)
-  workflow_dispatch:  # Manual trigger from Actions tab
+    - cron: "*/5 * * * *"  # Every 5 min (safer quota; change to */1 if paid)
+  workflow_dispatch:  # Manual trigger
 
 permissions:
   contents: write
@@ -11,7 +11,7 @@ permissions:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # Max 6 hours; adjust down for testing
+    timeout-minutes: 360  # 6h max run time for polling
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,10 +24,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run full bot
+      - name: Run full bot (polling mode)
         run: python setup_bot_manual.py
         env:
-          # No CI=true—full polling mode
+          # No CI=true—enables full run_bot + polling
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           GROUP_CHAT_ID: ${{ secrets.GROUP_CHAT_ID }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
@@ -35,8 +35,8 @@ jobs:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
 
-      - name: Commit any CSV changes (post-run)
-        if: always()  # Runs even on timeout
+      - name: Commit CSV changes (if any)
+        if: always()
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -44,6 +44,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No CSV changes"
           else
-            git commit -m "Update pending_teams.csv from bot run"
-            git push origin main
+            git commit -m "Update pending_teams.csv from bot submissions"
+            git push origin main || echo "Push failed"
           fi
