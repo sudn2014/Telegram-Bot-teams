@@ -1,7 +1,7 @@
 name: Run Telegram Bot (Full Mode)
 on:
   schedule:
-    - cron: "*/5 * * * *"  # Every 5 min (safer quota; change to */1 if paid)
+    - cron: "*/5 * * * *"  # Every 5 min (quota-safe; edit to */1 if paid)
   workflow_dispatch:  # Manual trigger
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6h max run time for polling
+    timeout-minutes: 360  # 6h max for polling
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - name: Run full bot (polling mode)
         run: python setup_bot_manual.py
         env:
-          # No CI=true—enables full run_bot + polling
+          # CRITICAL: No CI=true—enables run_bot + polling
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           GROUP_CHAT_ID: ${{ secrets.GROUP_CHAT_ID }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
