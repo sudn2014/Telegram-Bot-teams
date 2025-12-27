@@ -1,7 +1,7 @@
 name: Run Python Script on Schedule
 on:
   schedule:
-    - cron: "*/5 * * * *"  # Every 1 minute (GitHub quota: ~2000 min/month free; monitor usage)
+    - cron: "*/5 * * * *"  # Every 5 minutes (safer for free quota; change to */1 if paid)
   workflow_dispatch:  # Manual trigger from Actions tab
 
 permissions:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # Updated to latest
+        uses: actions/checkout@v4  # Checks out main; no need for extra fetch/checkout
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,14 +30,18 @@ jobs:
         run: python setup_bot_manual.py
         env:
           CI: true
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GROUP_CHAT_ID: ${{ secrets.GROUP_CHAT_ID }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}  # For script-level pushes (optional)
 
       - name: Commit and push CSV results
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
-          git pull origin main --allow-unrelated-histories || echo "No remote changes or pull failed"
+          # No need for fetch/checkout/pull—v4 already on main
           git add pending_teams.csv || echo "No CSV to add"
           git commit -m "Update pending_teams.csv with new entry" || echo "No changes to commit"
           git push origin main || echo "Push failed - check permissions"
