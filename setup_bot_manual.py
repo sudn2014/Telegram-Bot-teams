@@ -10,6 +10,7 @@ from email.mime.multipart import MIMEMultipart
 import csv
 from datetime import datetime
 import re
+import random
 
 # Config file (local only; prod uses env vars)
 CONFIG_FILE = 'config.json'
@@ -147,7 +148,12 @@ def save_to_csv(user_data: Dict[str, str]):
             subprocess.run(['git', 'remote', 'set-url', 'origin', 'https://github.com/sudn2014/telegram-bot-teams.git'], capture_output=True)
 
 def generate_dummy_csv():
-    save_to_csv({'name': 'Test User', 'email': 'test@example.com', 'phone': '1234567890'})
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    save_to_csv({
+        'name': f'Test User {random.randint(1000, 9999)}',
+        'email': f'test{random.randint(1000, 9999)}@example.com',
+        'phone': f'123-456-{random.randint(1000, 9999)}'
+    })
 
 def run_bot(config: Dict[str, Any]):
     print("\n=== Starting Bot ===")
