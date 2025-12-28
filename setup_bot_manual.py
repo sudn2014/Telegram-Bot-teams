@@ -114,7 +114,8 @@ Your Teams Admin
         print(f"Email failed: {e} - Data saved to CSV anyway")
 
 def save_to_csv(user_data: Dict[str, str]):
-    """Save user data to CSV."""
+    """Save user data to CSV with fast GitHub API push."""
+    from datetime import datetime
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     row = {
         'Name': user_data['name'].strip(),
@@ -123,37 +124,46 @@ def save_to_csv(user_data: Dict[str, str]):
         'Timestamp': timestamp
     }
     file_exists = os.path.isfile('pending_teams.csv')
-    with open('pending_teams.csv', 'a', newline='', encoding='utf-8') as f:  # NEW: encoding
+    with open('pending_teams.csv', 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=['Name', 'Email', 'Phone', 'Timestamp'])
         if not file_exists:
             writer.writeheader()
         writer.writerow(row)
     print("Saved to pending_teams.csv")
     
-    # Auto-push to repo
-    if os.environ.get('GIT_TOKEN'):
-        import subprocess
+    # Fast API push using GIT_TOKEN
+    git_token = os.environ.get('GIT_TOKEN')
+    if git_token:
+        import requests
+        import base64
         try:
-            repo_url = f'https://x-access-token:{os.environ["GIT_TOKEN"]}@github.com/sudn2014/telegram-bot-teams.git'
-            subprocess.run(['git', 'remote', 'set-url', 'origin', repo_url], check=True, capture_output=True)
-            subprocess.run(['git', 'add', 'pending_teams.csv'], check=True, capture_output=True)
-            commit_msg = f'Add user: {row["Name"]} ({timestamp})'
-            commit_result = subprocess.run(['git', 'commit', '-m', commit_msg], capture_output=True, text=True)
-            if commit_result.returncode == 0:
-                push_result = subprocess.run(['git', 'push', 'origin', 'main'], capture_output=True, text=True)
-                if push_result.returncode == 0:
-                    print("Pushed to repo")
-                else:
-                    print(f"Push failed: {push_result.stderr}")
+            # Read CSV content
+            with open('pending_teams.csv', 'rb') as f:
+                content = f.read()
+            content_b64 = base64.b64encode(content).decode('utf-8')
+            
+            # Headers for API
+            headers = {'Authorization': f'token {git_token}', 'Content-Type': 'application/json'}
+            
+            # Get current file SHA for update
+            get_response = requests.get('https://api.github.com/repos/sudn2014/telegram-bot-teams/contents/pending_teams.csv', headers=headers)
+            sha = get_response.json().get('sha') if get_response.status_code == 200 else None
+            
+            # Update file
+            data = {
+                'message': f'Add user: {row["Name"]} ({timestamp})',
+                'content': content_b64,
+                'sha': sha  # Required for updates
+            }
+            put_response = requests.put('https://api.github.com/repos/sudn2014/telegram-bot-teams/contents/pending_teams.csv', headers=headers, json=data)
+            if put_response.status_code in [200, 201]:
+                print("Pushed to GitHub via API (<5s update)")
             else:
-                print("No changes to commit")
-        except subprocess.CalledProcessError as e:
-            print(f"Git error: {e}")
+                print(f"API push failed ({put_response.status_code}): {put_response.text}")
         except Exception as e:
-            print(f"Push error: {e}")
-        finally:
-            # Reset remote (safety)
-            subprocess.run(['git', 'remote', 'set-url', 'origin', 'https://github.com/sudn2014/telegram-bot-teams.git'], capture_output=True)
+            print(f"API push error: {e} - Local save only")
+    else:
+        print("GIT_TOKEN not set—skipping push (check secret)")
 
 
 def generate_dummy_csv():
