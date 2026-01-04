@@ -39,7 +39,10 @@ def setup_telegram(config: Dict[str, Any]):
     print("Entering setup_telegram")  # Debug
     sys.stdout.flush()
     print("\n=== Telegram Setup ===")
+    sys.stdout.flush()  # Force output
     interactive = sys.stdin.isatty() # NEW: Detect local terminal vs. hosting
+    print(f"Print 2: Interactive mode? {interactive}")  # Debug
+    sys.stdout.flush()
    
     required = ['bot_token', 'group_chat_id']
     for key in required:
@@ -60,6 +63,9 @@ def setup_telegram(config: Dict[str, Any]):
             else:
                 raise ValueError(f"Missing required config '{key}'. Set {key.upper()} env var in hosting!")
         print(f"Checked {key}: {'OK' if config.get(key) else 'MISSING'}")  # Debug: Add this line here
+        sys.stdout.flush()
+    print("Print 5: Required keys done")  # Debug
+    sys.stdout.flush()
     # Email setup (prompt only if interactive)
     email_keys = ['email_to', 'email_from', 'email_password']
     for key in email_keys:
