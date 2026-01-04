@@ -225,6 +225,9 @@ def run_bot(config: Dict[str, Any]):
         print(f"# State for {user_id}: '{state}'")
         
         input_text = message.text.strip()
+        print(f"Handler entered for state '{state}' with input '{input_text}'")  # Debug
+        sys.stdout.flush()
+
         if not input_text:  # NEW: Skip empty messages
             return
         
@@ -250,8 +253,12 @@ def run_bot(config: Dict[str, Any]):
                 return
             data['phone'] = input_text
             print(f"# Phone: '{data['phone']}' for {user_id}")
+            print("Phone state complete—calling send_email and save_to_csv")  # Debug: Add this line
+            sys.stdout.flush()  # Force output
             send_email(config, data)
             save_to_csv(data)
+            print("send_email and save_to_csv done")  # Debug: Add this line
+            sys.stdout.flush()  # Force output
             try:
                 bot.send_message(user_id, f"Thanks! We've noted your details ({data['name']}, {data['email']}, {data['phone']}). You'll be added to Teams soon—check your email for confirmation.")
                 print(f"# Final msg sent to {user_id}")
